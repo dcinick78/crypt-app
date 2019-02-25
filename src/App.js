@@ -8,14 +8,18 @@ class App extends Component {
   }
   encryptText = (e) => {
     e.preventDefault();
-    console.log(e.target.elements.input_field.value);
-    // var = value; replace each character in string =
-    // make array from string;
-    // make new array from each array[key] with the corresponding mapped value of the serialize map.([["A","415"],["415","A"]])
-    // if array[key] = map.get(A); set new array[map.get(A).value] // = 415 = / A
-    // complete until array[key] = -1 / for loop max/min
-    // return new finished array to state and set state to output field.
-
+    const strTI = e.target.elements.input_field.value;
+    const salt = 17;
+    let result_as_array = [];
+    for (let i=0; i<strTI.length ;i++) {
+      console.log(strTI.charCodeAt(i));
+      result_as_array[i] = strTI.charCodeAt(i);
+    }
+    let result_as_str = result_as_array.join('-');
+    console.log(result_as_str);
+    this.setState({
+      output_text : result_as_str
+    });
   }
   decryptText = (e) => {
     e.preventDefault();
@@ -35,6 +39,8 @@ class App extends Component {
         <button name="encrypt">encrypt text</button>
         </p>
         </form>
+      <h2> Output : </h2>
+        <textarea name="output" value={this.state.output_text} placeholder="encrypted string output" />
       </div>
     );
   }
