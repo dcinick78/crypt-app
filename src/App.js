@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
-import EncryptLayer from './components/encrypt';
-import DecryptLayer from './components/decrypt';
 import './App.css';
+var key2 = (function () {
+  let secret =  76;
+  return function () {
+      return secret;
+  };
+}());
 
 class App extends Component {
   state = {
@@ -11,25 +15,37 @@ class App extends Component {
   }
   encryptText = (e) => {
     e.preventDefault();
-    const strTI = e.target.elements.input_field.value;
-    let result_as_array = [];
-      for (let i=0; i<strTI.length ;i++) {
-        result_as_array[i] = strTI.charCodeAt(i);
+    let codeStr = "";
+    let str = document.getElementById("input_field").value;
+    let key = Math.floor(parseFloat(document.getElementById("key").value)) || 7;
+      for (let i=0; i<str.length ;i++) {
+        let mutated = str.charCodeAt(i) + key + key2(); /* get the ascii code from character and mutate it*/
+        mutated = String.fromCharCode(mutated);/* save ascii code as real character */  /* needs bufix for keyrange */
+        codeStr +=mutated;
       }
-    let codeStr = result_as_array.join("-");
-      this.setState({
-        output_text : codeStr
-      });
+    if ( isNaN(parseFloat(key)) ) {
+      codeStr = "please use numbers as key";
+    }
+    this.setState({
+      output_text : codeStr
+    });
   }
   decryptText = (e) => {
-    e.preventDefault();
-    const strTI = e.target.elements.input_field2.value.split("-");
-    let codeDecrypted = "";
-      for (let i=0; i<strTI.length ;i++) {
-          codeDecrypted += String.fromCharCode(strTI[i]);        
+    let codeStr = "";
+    let str = document.getElementById("input_field").value;
+    let key = Math.floor(parseFloat(document.getElementById("key").value)) || 7;
+    if ( isNaN(parseFloat(key)) && !isFinite(key)) {
+      this.setState({
+        output_text : "please use numbers as key"
+      });
+    }
+      for (let i=0; i<str.length ;i++) {
+        /* get ascii charcode, reverse mutate, then transform to real character */
+          let mutated = String.fromCharCode(str.charCodeAt(i) - key2() - key);
+          codeStr += mutated;
       }
     this.setState({
-      output_text2 : codeDecrypted
+      output_text : codeStr
     });
   }
   render() {
@@ -37,12 +53,17 @@ class App extends Component {
       <div className="App">
         <h1>Text Encryption Application</h1>
         <div className="wrap">
-          <EncryptLayer encryptText={this.encryptText} output={this.state.output_text} />
-          <DecryptLayer decryptText={this.decryptText} output={this.state.output_text2} /> 
+          <p><label id="label">Mutate-Number : </label> <input type="text" id="key" maxLength="3" placeholder="7" /> </p>
+          <p> <textarea id="input_field" placeholder="Enter your String here ... "/> </p>
+          <p>
+          <button onClick={this.encryptText} className="encrypt__btn"> encrypt text </button> 
+          <button onClick={this.decryptText} className="decrypt__btn"> decrypt text </button>
+          </p>
+          <span className="output_descr"> Output : </span>
+          <p className="output_field" >{this.state.output_text}</p>
         </div>
       </div>
     );
   }
 }
-
 export default App;
